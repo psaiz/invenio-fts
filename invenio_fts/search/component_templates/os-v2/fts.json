@@ -1,0 +1,15 @@
+{
+  "template": {
+    "mappings": {
+      "dynamic": false,
+      "properties": {
+        "status": {
+          "type": "keyword"
+        },
+        "ack": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
