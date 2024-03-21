@@ -13,12 +13,5 @@ set -o errexit
 # Quit on unbound symbols
 set -o nounset
 
-# Always bring down docker services
-function cleanup() {
-    eval "$(docker-services-cli down --env)"
-}
-trap cleanup EXIT
-
 python -m check_manifest
-eval "$(docker-services-cli up --search ${SEARCH:-opensearch} --env)"
 python -m pytest

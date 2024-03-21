@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 
-def test_connect(search, ftsmanager):
+def test_connect(ftsmanager):
     print(ftsmanager)
 
 
@@ -10,23 +10,20 @@ def test_connect(search, ftsmanager):
 #    print(ftsmanager.whoami())
 
 
-def test_archive(search_clear, ftsmanager):
-    def fake_get_jobs_statuses(context, jobs):
-        print("FAKING THE STATUS OF THE TRANSFERS")
-        print(jobs)
-        if jobs:
-            return {jobs[0]: "DONE"}
-        return {}
-
-    file = "/tmp/dd"
+def test_archive(ftsmanager):
     FAKE_ID = "1244"
+
+    def fake_get_job_status(context, job):
+        print("FAKING THE STATUS OF THE TRANSFERS")
+        print(job)
+        if job == FAKE_ID:
+            return "DONE"
+        return None
+
     with patch("fts3.rest.client.easy.submit", lambda a, b: FAKE_ID):
-        ftsmanager.archive(file, "/tmp/dest")
+        ftsmanager.archive("/tmp/dd", "/tmp/dest")
         print("The transfer has been submitted")
-        with patch("fts3.rest.client.easy.get_jobs_statuses", fake_get_jobs_statuses):
-            transfers = ftsmanager.all_transfers_status()
-            assert transfers == {FAKE_ID: "DONE"}
+        with patch("fts3.rest.client.easy.get_job_status", fake_get_job_status):
+            status = ftsmanager.transfer_status(FAKE_ID)
+            assert status == "DONE"
             print("The transfer finished")
-            ftsmanager.ack_transfer(FAKE_ID)
-            transfers = ftsmanager.all_transfers_status()
-            assert transfers == {}

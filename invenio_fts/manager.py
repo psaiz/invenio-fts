@@ -1,16 +1,15 @@
-import fts3.rest.client.easy as fts3
+import os
 
-from .persistency import Persistency
+import fts3.rest.client.easy as fts3
 
 
 class TransferManager:
-    def __init__(self, endpoint, ucert, ukey):
-        self._context = fts3.Context(endpoint, ucert, ukey, verify=True)
-        self._persistency = Persistency()
+    def __init__(self):
+        endpoint = os.environ["INVENIO_FTS_ENDPOINT"]
+        self._context = fts3.Context(endpoint, verify=True)
 
     def _submit(self, job):
         job_id = fts3.submit(self._context, job)
-        self._persistency.insert_transfer(job_id)
         return job_id
 
     def _basic_job(self, source, dest):
@@ -27,14 +26,6 @@ class TransferManager:
         job["params"] = {"archive_timeout": 86400, "copy_pin_lifetime": 64000}
 
         return self._submit(job)
-
-    def all_transfers_status(self):
-        ids = self._persistency.get_transfers()
-
-        return fts3.get_jobs_statuses(self._context, ids)
-
-    def ack_transfer(self, transfer_id):
-        self._persistency.ack_transfer(transfer_id)
 
     def transfer_status(self, transfer_id):
         return fts3.get_job_status(self._context, transfer_id)

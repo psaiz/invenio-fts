@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 
 import pytest
@@ -12,17 +13,17 @@ def create_app(instance_path, entry_points):
     return _create_api
 
 
-def blabla(self):
+def _fake_validate_endpoint(self):
     return {"url": "test", "api": {"major": 2, "minor": 2, "patch": 3}}
 
 
 @pytest.fixture()
 def ftsmanager():
     print("Fixture for the manager")
-    endpoint = "https://fts3-public.cern.ch:8446"
-    ucert = ""
+    os.environ["INVENIO_FTS_ENDPOINT"] = "https://fts3-public.cern.ch:8446"
 
-    ukey = ""
-    with patch("fts3.rest.client.context.Context._validate_endpoint", blabla):
-        fts = TransferManager(endpoint, ucert, ukey)
+    with patch(
+        "fts3.rest.client.context.Context._validate_endpoint", _fake_validate_endpoint
+    ):
+        fts = TransferManager()
     return fts

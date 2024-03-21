@@ -1,8 +1,0 @@
-{
-  "index_patterns": [
-    "__SEARCH_INDEX_PREFIX__fts-*"
-  ],
-  "composed_of": [
-    "__SEARCH_INDEX_PREFIX__fts"
-  ]
-}
